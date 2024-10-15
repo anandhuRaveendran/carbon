@@ -158,6 +158,55 @@ echo "—---------------Approve chaincode in buyer peer—-------------"
 peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com --channelID $CHANNEL_NAME --name carbonchain --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
 sleep 1
 
+export CORE_PEER_LOCALMSPID=RegulatorsMSP
+export CORE_PEER_ADDRESS=localhost:12051
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/regulators.carbon.com/peers/peer0.regulators.carbon.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/regulators.carbon.com/users/Admin@regulators.carbon.com/msp
+
+echo "—---------------Join regulators peer to the channel—-------------"
+
+peer channel join -b ${PWD}/channel-artifacts/$CHANNEL_NAME.block
+sleep 1
+peer channel list
+
+echo "—-------------regulators anchor peer update—-----------"
+
+peer channel fetch config ${PWD}/channel-artifacts/config_block.pb -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com -c $CHANNEL_NAME --tls --cafile $ORDERER_CA
+sleep 1
+
+cd channel-artifacts
+
+configtxlator proto_decode --input config_block.pb --type common.Block --output config_block.json
+jq '.data.data[0].payload.data.config' config_block.json >config.json
+cp config.json config_copy.json
+
+jq '.channel_group.groups.Application.groups.RegulatorsMSP.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "peer0.regulators.carbon.com","port": 12051}]},"version": "0"}}' config_copy.json >modified_config.json
+
+configtxlator proto_encode --input config.json --type common.Config --output config.pb
+configtxlator proto_encode --input modified_config.json --type common.Config --output modified_config.pb
+configtxlator compute_update --channel_id $CHANNEL_NAME --original config.pb --updated modified_config.pb --output config_update.pb
+
+configtxlator proto_decode --input config_update.pb --type common.ConfigUpdate --output config_update.json
+echo '{"payload":{"header":{"channel_header":{"channel_id":"'$CHANNEL_NAME'", "type":2}},"data":{"config_update":'$(cat config_update.json)'}}}' | jq . >config_update_in_envelope.json
+configtxlator proto_encode --input config_update_in_envelope.json --type common.Envelope --output config_update_in_envelope.pb
+
+cd ..
+
+peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c $CHANNEL_NAME -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com --tls --cafile $ORDERER_CA
+sleep 1
+peer channel getinfo -c $CHANNEL_NAME
+
+echo "—---------------install chaincode in carbon peer—-------------"
+
+peer lifecycle chaincode install basic.tar.gz
+sleep 3
+
+peer lifecycle chaincode queryinstalled
+
+echo "—---------------Approve chaincode in carbon peer—-------------"
+
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com --channelID $CHANNEL_NAME --name carbonchain --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+sleep 1
 export CORE_PEER_LOCALMSPID=certifyingAuthMSP
 export CORE_PEER_ADDRESS=localhost:10051
 export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/peers/peer0.certifyingAuth.carbon.com/tls/ca.crt
@@ -218,39 +267,3 @@ sleep 1
 
 peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name carbonchain --cafile $ORDERER_CA
 
-export CORE_PEER_LOCALMSPID=RegulatorsMSP
-export CORE_PEER_ADDRESS=localhost:12051
-export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/regulators.carbon.com/peers/peer0.regulators.carbon.com/tls/ca.crt
-export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/regulators.carbon.com/users/Admin@regulators.carbon.com/msp
-
-echo "—---------------Join regulators peer to the channel—-------------"
-
-peer channel join -b ${PWD}/channel-artifacts/$CHANNEL_NAME.block
-sleep 1
-peer channel list
-
-echo "—-------------regulators anchor peer update—-----------"
-
-peer channel fetch config ${PWD}/channel-artifacts/config_block.pb -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com -c $CHANNEL_NAME --tls --cafile $ORDERER_CA
-sleep 1
-
-cd channel-artifacts
-
-configtxlator proto_decode --input config_block.pb --type common.Block --output config_block.json
-jq '.data.data[0].payload.data.config' config_block.json >config.json
-cp config.json config_copy.json
-
-jq '.channel_group.groups.Application.groups.RegulatorsMSP.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "peer0.regulators.carbon.com","port": 12051}]},"version": "0"}}' config_copy.json >modified_config.json
-
-configtxlator proto_encode --input config.json --type common.Config --output config.pb
-configtxlator proto_encode --input modified_config.json --type common.Config --output modified_config.pb
-configtxlator compute_update --channel_id $CHANNEL_NAME --original config.pb --updated modified_config.pb --output config_update.pb
-
-configtxlator proto_decode --input config_update.pb --type common.ConfigUpdate --output config_update.json
-echo '{"payload":{"header":{"channel_header":{"channel_id":"'$CHANNEL_NAME'", "type":2}},"data":{"config_update":'$(cat config_update.json)'}}}' | jq . >config_update_in_envelope.json
-configtxlator proto_encode --input config_update_in_envelope.json --type common.Envelope --output config_update_in_envelope.pb
-
-cd ..
-
-peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c $CHANNEL_NAME -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com --tls --cafile $ORDERER_CA
-sleep 1
