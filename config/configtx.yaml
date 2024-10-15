@@ -15,57 +15,57 @@ Organizations:
         Rule: "OR('OrdererMSP.admin')"
     OrdererEndpoints:
       - orderer.carbon.com:7050
-  - &Manufacturer
-    Name: ManufacturerMSP
-    ID: ManufacturerMSP
-    MSPDir: ../organizations/peerOrganizations/manufacturer.carbon.com/msp
+  - &Farmer
+    Name: FarmerMSP
+    ID: FarmerMSP
+    MSPDir: ../organizations/peerOrganizations/farmer.carbon.com/msp
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('ManufacturerMSP.admin', 'ManufacturerMSP.peer', 'ManufacturerMSP.client')"
+        Rule: "OR('FarmerMSP.admin', 'FarmerMSP.peer', 'FarmerMSP.client')"
       Writers:
         Type: Signature
-        Rule: "OR('ManufacturerMSP.admin', 'ManufacturerMSP.client')"
+        Rule: "OR('FarmerMSP.admin', 'FarmerMSP.client')"
       Admins:
         Type: Signature
-        Rule: "OR('ManufacturerMSP.admin')"
+        Rule: "OR('FarmerMSP.admin')"
       Endorsement:
         Type: Signature
-        Rule: "OR('ManufacturerMSP.peer')"
-  - &Wholesaler
-    Name: WholesalerMSP
-    ID: WholesalerMSP
-    MSPDir: ../organizations/peerOrganizations/wholesaler.carbon.com/msp
+        Rule: "OR('FarmerMSP.peer')"
+  - &Buyer
+    Name: BuyerMSP
+    ID: BuyerMSP
+    MSPDir: ../organizations/peerOrganizations/buyer.carbon.com/msp
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('WholesalerMSP.admin', 'WholesalerMSP.peer', 'WholesalerMSP.client')"
+        Rule: "OR('BuyerMSP.admin', 'BuyerMSP.peer', 'BuyerMSP.client')"
       Writers:
         Type: Signature
-        Rule: "OR('WholesalerMSP.admin', 'WholesalerMSP.client')"
+        Rule: "OR('BuyerMSP.admin', 'BuyerMSP.client')"
       Admins:
         Type: Signature
-        Rule: "OR('WholesalerMSP.admin')"
+        Rule: "OR('BuyerMSP.admin')"
       Endorsement:
         Type: Signature
-        Rule: "OR('WholesalerMSP.peer')"
-  - &carbon
-    Name: carbonMSP
-    ID: carbonMSP
-    MSPDir: ../organizations/peerOrganizations/carbon.carbon.com/msp
+        Rule: "OR('BuyerMSP.peer')"
+  - &CertifyingAuth
+    Name: certifyingAuthMSP
+    ID: certifyingAuthMSP
+    MSPDir: ../organizations/peerOrganizations/certifyingAuth.carbon.com/msp
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('carbonMSP.admin', 'carbonMSP.peer', 'carbonMSP.client')"
+        Rule: "OR('certifyingAuthMSP.admin', 'certifyingAuthMSP.peer', 'certifyingAuthMSP.client')"
       Writers:
         Type: Signature
-        Rule: "OR('carbonMSP.admin', 'carbonMSP.client')"
+        Rule: "OR('certifyingAuthMSP.admin', 'certifyingAuthMSP.client')"
       Admins:
         Type: Signature
-        Rule: "OR('carbonMSP.admin')"
+        Rule: "OR('certifyingAuthMSP.admin')"
       Endorsement:
         Type: Signature
-        Rule: "OR('carbonMSP.peer')"
+        Rule: "OR('certifyingAuthMSP.peer')"
   - &Regulators # Corrected indentation here
     Name: RegulatorsMSP
     ID: RegulatorsMSP
@@ -168,8 +168,8 @@ Profiles:
     Application:
       <<: *ApplicationDefaults
       Organizations:
-        - *Manufacturer
-        - *Wholesaler
-        - *carbon
+        - *Farmer
+        - *Buyer
+        - *CertifyingAuth
         - *Regulators
       Capabilities: *ApplicationCapabilities

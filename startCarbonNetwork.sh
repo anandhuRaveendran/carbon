@@ -42,17 +42,17 @@ osnadmin channel list -o localhost:7053 --ca-file $ORDERER_CA --client-cert $ORD
 sleep 2
 
 export FABRIC_CFG_PATH=${PWD}/peercfg
-export CORE_PEER_LOCALMSPID=ManufacturerMSP
+export CORE_PEER_LOCALMSPID=FarmerMSP
 export CORE_PEER_TLS_ENABLED=true
-export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer0.manufacturer.carbon.com/tls/ca.crt
-export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/users/Admin@manufacturer.carbon.com/msp
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer0.farmer.carbon.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/farmer.carbon.com/users/Admin@farmer.carbon.com/msp
 export CORE_PEER_ADDRESS=localhost:7051
-export MANUFACTURER_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer0.manufacturer.carbon.com/tls/ca.crt
-export WHOLESALER_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/peers/peer0.wholesaler.carbon.com/tls/ca.crt
-export CARBON_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/carbon.carbon.com/peers/peer0.carbon.carbon.com/tls/ca.crt
+export farmer_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer0.farmer.carbon.com/tls/ca.crt
+export buyer_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/buyer.carbon.com/peers/peer0.buyer.carbon.com/tls/ca.crt
+export CARBON_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/peers/peer0.certifyingAuth.carbon.com/tls/ca.crt
 sleep 2
 
-echo "—---------------Join Manufacturer peer to the channel—-------------"
+echo "—---------------Join farmer peer to the channel—-------------"
 
 echo ${FABRIC_CFG_PATH}
 sleep 2
@@ -62,7 +62,7 @@ sleep 3
 echo "-----channel List----"
 peer channel list
 
-echo "—-------------Manufacturer anchor peer update—-----------"
+echo "—-------------farmer anchor peer update—-----------"
 
 peer channel fetch config ${PWD}/channel-artifacts/config_block.pb -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com -c $CHANNEL_NAME --tls --cafile $ORDERER_CA
 sleep 1
@@ -74,7 +74,7 @@ jq '.data.data[0].payload.data.config' config_block.json >config.json
 
 cp config.json config_copy.json
 
-jq '.channel_group.groups.Application.groups.ManufacturerMSP.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "peer0.manufacturer.carbon.com","port": 7051}]},"version": "0"}}' config_copy.json >modified_config.json
+jq '.channel_group.groups.Application.groups.FarmerMSP.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "peer0.farmer.carbon.com","port": 7051}]},"version": "0"}}' config_copy.json >modified_config.json
 
 configtxlator proto_encode --input config.json --type common.Config --output config.pb
 configtxlator proto_encode --input modified_config.json --type common.Config --output modified_config.pb
@@ -89,38 +89,38 @@ cd ..
 peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c $CHANNEL_NAME -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com --tls --cafile $ORDERER_CA
 sleep 1
 
-# echo "—---------------package chaincode—-------------"
+echo "—---------------package chaincode—-------------"
 
-# peer lifecycle chaincode package carbonchain.tar.gz --path ${PWD}/../Chaincode/KBA-carbonmobile --lang node --label carbonchain_1.0
-# sleep 1
+peer lifecycle chaincode package basic.tar.gz --path ${PWD}/../Chaincode/chaincode-javascript --lang node --label basic.0
+sleep 1
 
-# echo "—---------------install chaincode in Manufacturer peer—-------------"
+echo "—---------------install chaincode in farmer peer—-------------"
 
-# peer lifecycle chaincode install carbonchain.tar.gz
-# sleep 3
+peer lifecycle chaincode install basic.tar.gz
+sleep 3
 
-# peer lifecycle chaincode queryinstalled
-# sleep 1
+peer lifecycle chaincode queryinstalled
+sleep 1
 
-# export CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid carbonchain.tar.gz)
+export CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid basic.tar.gz)
 
-# echo "—---------------Approve chaincode in Manufacturer peer—-------------"
+echo "—---------------Approve chaincode in farmer peer—-------------"
 
-# peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com --channelID $CHANNEL_NAME --name KBA-carbonmobile --version 1.0  --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
-# sleep 2
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com --channelID $CHANNEL_NAME --name carbonchain --version 1.0  --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+sleep 2
 
-export CORE_PEER_LOCALMSPID=WholesalerMSP
+export CORE_PEER_LOCALMSPID=BuyerMSP
 export CORE_PEER_ADDRESS=localhost:9051
-export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/peers/peer0.wholesaler.carbon.com/tls/ca.crt
-export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/users/Admin@wholesaler.carbon.com/msp
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/buyer.carbon.com/peers/peer0.buyer.carbon.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/buyer.carbon.com/users/Admin@buyer.carbon.com/msp
 
-echo "—---------------Join wholesaler peer to the channel—-------------"
+echo "—---------------Join buyer peer to the channel—-------------"
 
 peer channel join -b ${PWD}/channel-artifacts/$CHANNEL_NAME.block
 sleep 1
 peer channel list
 
-echo "—-------------wholesaler anchor peer update—-----------"
+echo "—-------------buyer anchor peer update—-----------"
 
 peer channel fetch config ${PWD}/channel-artifacts/config_block.pb -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com -c $CHANNEL_NAME --tls --cafile $ORDERER_CA
 sleep 1
@@ -131,7 +131,7 @@ configtxlator proto_decode --input config_block.pb --type common.Block --output 
 jq '.data.data[0].payload.data.config' config_block.json >config.json
 cp config.json config_copy.json
 
-jq '.channel_group.groups.Application.groups.WholesalerMSP.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "peer0.wholesaler.carbon.com","port": 9051}]},"version": "0"}}' config_copy.json >modified_config.json
+jq '.channel_group.groups.Application.groups.BuyerMSP.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "peer0.buyer.carbon.com","port": 9051}]},"version": "0"}}' config_copy.json >modified_config.json
 
 configtxlator proto_encode --input config.json --type common.Config --output config.pb
 configtxlator proto_encode --input modified_config.json --type common.Config --output modified_config.pb
@@ -146,22 +146,22 @@ cd ..
 peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c $CHANNEL_NAME -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com --tls --cafile $ORDERER_CA
 sleep 1
 
-# echo "—---------------install chaincode in wholesaler peer—-------------"
+echo "—---------------install chaincode in buyer peer—-------------"
 
-# peer lifecycle chaincode install carbonchain.tar.gz
-# sleep 3
+peer lifecycle chaincode install basic.tar.gz
+sleep 3
 
-# peer lifecycle chaincode queryinstalled
+peer lifecycle chaincode queryinstalled
 
-# echo "—---------------Approve chaincode in wholesaler peer—-------------"
+echo "—---------------Approve chaincode in buyer peer—-------------"
 
-# peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com --channelID $CHANNEL_NAME --name KBA-carbonmobile --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
-# sleep 1
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com --channelID $CHANNEL_NAME --name carbonchain --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+sleep 1
 
-export CORE_PEER_LOCALMSPID=carbonMSP
+export CORE_PEER_LOCALMSPID=certifyingAuthMSP
 export CORE_PEER_ADDRESS=localhost:10051
-export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/carbon.carbon.com/peers/peer0.carbon.carbon.com/tls/ca.crt
-export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/carbon.carbon.com/users/Admin@carbon.carbon.com/msp
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/peers/peer0.certifyingAuth.carbon.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/users/Admin@certifyingAuth.carbon.com/msp
 
 echo "—---------------Join carbon peer to the channel—-------------"
 
@@ -180,7 +180,7 @@ configtxlator proto_decode --input config_block.pb --type common.Block --output 
 jq '.data.data[0].payload.data.config' config_block.json >config.json
 cp config.json config_copy.json
 
-jq '.channel_group.groups.Application.groups.carbonMSP.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "peer0.carbon.carbon.com","port": 10051}]},"version": "0"}}' config_copy.json >modified_config.json
+jq '.channel_group.groups.Application.groups.certifyingAuthMSP.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "peer0.certifyingAuth.carbon.com","port": 10051}]},"version": "0"}}' config_copy.json >modified_config.json
 
 configtxlator proto_encode --input config.json --type common.Config --output config.pb
 configtxlator proto_encode --input modified_config.json --type common.Config --output modified_config.pb
@@ -197,26 +197,26 @@ sleep 1
 
 peer channel getinfo -c $CHANNEL_NAME
 
-# echo "—---------------install chaincode in carbon peer—-------------"
+echo "—---------------install chaincode in carbon peer—-------------"
 
-# peer lifecycle chaincode install carbonchain.tar.gz
-# sleep 3
+peer lifecycle chaincode install basic.tar.gz
+sleep 3
 
-# peer lifecycle chaincode queryinstalled
+peer lifecycle chaincode queryinstalled
 
-# echo "—---------------Approve chaincode in carbon peer—-------------"
+echo "—---------------Approve chaincode in carbon peer—-------------"
 
-# peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com --channelID $CHANNEL_NAME --name KBA-carbonmobile --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
-# sleep 1
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com --channelID $CHANNEL_NAME --name carbonchain --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+sleep 1
 
-# echo "—---------------Commit chaincode in carbon peer—-------------"
+echo "—---------------Commit chaincode in carbon peer—-------------"
 
-# peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name KBA-carbonmobile --version 1.0 --sequence 1 --tls --cafile $ORDERER_CA --output json
+peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name carbonchain --version 1.0 --sequence 1 --tls --cafile $ORDERER_CA --output json
 
-# peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com --channelID $CHANNEL_NAME --name KBA-carbonmobile --version 1.0 --sequence 1 --tls --cafile $ORDERER_CA --peerAddresses localhost:7051 --tlsRootCertFiles $MANUFACTURER_PEER_TLSROOTCERT --peerAddresses localhost:9051 --tlsRootCertFiles $wholesaler_PEER_TLSROOTCERT --peerAddresses localhost:10051 --tlsRootCertFiles $CARBON_PEER_TLSROOTCERT
-# sleep 1
+peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.carbon.com --channelID $CHANNEL_NAME --name carbonchain --version 1.0 --sequence 1 --tls --cafile $ORDERER_CA --peerAddresses localhost:7051 --tlsRootCertFiles $farmer_PEER_TLSROOTCERT --peerAddresses localhost:9051 --tlsRootCertFiles $buyer_PEER_TLSROOTCERT --peerAddresses localhost:10051 --tlsRootCertFiles $CARBON_PEER_TLSROOTCERT
+sleep 1
 
-# peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name KBA-carbonmobile --cafile $ORDERER_CA
+peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name carbonchain --cafile $ORDERER_CA
 
 export CORE_PEER_LOCALMSPID=RegulatorsMSP
 export CORE_PEER_ADDRESS=localhost:12051

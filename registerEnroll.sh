@@ -1,239 +1,239 @@
 #!/bin/bash
 
-function createManufacturer() {
-  echo "Enrolling the CA admin for Manufacturer"
-  mkdir -p organizations/peerOrganizations/manufacturer.carbon.com/
+function createfarmer() {
+  echo "Enrolling the CA admin for Farmer"
+  mkdir -p organizations/peerOrganizations/farmer.carbon.com/
 
-  export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/
+  export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/farmer.carbon.com/
 
   set -x
-  fabric-ca-client enroll -u https://admin:adminpw@localhost:7054 --caname ca-manufacturer --tls.certfiles "${PWD}/organizations/fabric-ca/manufacturer/ca-cert.pem"
+  fabric-ca-client enroll -u https://admin:adminpw@localhost:7054 --caname ca-farmer --tls.certfiles "${PWD}/organizations/fabric-ca/farmer/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   echo 'NodeOUs:
   Enable: true
   ClientOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-manufacturer.pem
+    Certificate: cacerts/localhost-7054-ca-farmer.pem
     OrganizationalUnitIdentifier: client
   PeerOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-manufacturer.pem
+    Certificate: cacerts/localhost-7054-ca-farmer.pem
     OrganizationalUnitIdentifier: peer
   AdminOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-manufacturer.pem
+    Certificate: cacerts/localhost-7054-ca-farmer.pem
     OrganizationalUnitIdentifier: admin
   OrdererOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-manufacturer.pem
-    OrganizationalUnitIdentifier: orderer' > "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/msp/config.yaml"
+    Certificate: cacerts/localhost-7054-ca-farmer.pem
+    OrganizationalUnitIdentifier: orderer' > "${PWD}/organizations/peerOrganizations/farmer.carbon.com/msp/config.yaml"
 
-  mkdir -p "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/msp/tlscacerts"
-  cp "${PWD}/organizations/fabric-ca/manufacturer/ca-cert.pem" "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/msp/tlscacerts/ca.crt"
+  mkdir -p "${PWD}/organizations/peerOrganizations/farmer.carbon.com/msp/tlscacerts"
+  cp "${PWD}/organizations/fabric-ca/farmer/ca-cert.pem" "${PWD}/organizations/peerOrganizations/farmer.carbon.com/msp/tlscacerts/ca.crt"
 
-  mkdir -p "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/tlsca"
-  cp "${PWD}/organizations/fabric-ca/manufacturer/ca-cert.pem" "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/tlsca/tlsca.manufacturer.carbon.com-cert.pem"
+  mkdir -p "${PWD}/organizations/peerOrganizations/farmer.carbon.com/tlsca"
+  cp "${PWD}/organizations/fabric-ca/farmer/ca-cert.pem" "${PWD}/organizations/peerOrganizations/farmer.carbon.com/tlsca/tlsca.farmer.carbon.com-cert.pem"
 
-  mkdir -p "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/ca"
-  cp "${PWD}/organizations/fabric-ca/manufacturer/ca-cert.pem" "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/ca/ca.manufacturer.carbon.com-cert.pem"
+  mkdir -p "${PWD}/organizations/peerOrganizations/farmer.carbon.com/ca"
+  cp "${PWD}/organizations/fabric-ca/farmer/ca-cert.pem" "${PWD}/organizations/peerOrganizations/farmer.carbon.com/ca/ca.farmer.carbon.com-cert.pem"
 
   echo "Registering peer0"
   set -x
-  fabric-ca-client register --caname ca-manufacturer --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/manufacturer/ca-cert.pem"
+  fabric-ca-client register --caname ca-farmer --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/farmer/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   echo "Registering peer1"
   set -x
-  fabric-ca-client register --caname ca-manufacturer --id.name peer1 --id.secret peer1pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/manufacturer/ca-cert.pem"
+  fabric-ca-client register --caname ca-farmer --id.name peer1 --id.secret peer1pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/farmer/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   echo "Registering user1"
   set -x
-  fabric-ca-client register --caname ca-manufacturer --id.name user1 --id.secret user1pw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/manufacturer/ca-cert.pem"
+  fabric-ca-client register --caname ca-farmer --id.name user1 --id.secret user1pw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/farmer/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   echo "Registering org admin"
   set -x
-  fabric-ca-client register --caname ca-manufacturer --id.name manufactureradmin --id.secret manufactureradminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/manufacturer/ca-cert.pem"
+  fabric-ca-client register --caname ca-farmer --id.name farmeradmin --id.secret farmeradminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/farmer/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   # Peer0 MSP and TLS certificates
   echo "Generating the peer0 MSP"
-  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:7054 --caname ca-manufacturer -M "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer0.manufacturer.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/manufacturer/ca-cert.pem"
+  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:7054 --caname ca-farmer -M "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer0.farmer.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/farmer/ca-cert.pem"
 
-  cp "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer0.manufacturer.carbon.com/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/farmer.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer0.farmer.carbon.com/msp/config.yaml"
 
   echo "Generating the peer0 TLS certificates"
-  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:7054 --caname ca-manufacturer -M "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer0.manufacturer.carbon.com/tls" --enrollment.profile tls --csr.hosts peer0.manufacturer.carbon.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/manufacturer/ca-cert.pem"
+  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:7054 --caname ca-farmer -M "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer0.farmer.carbon.com/tls" --enrollment.profile tls --csr.hosts peer0.farmer.carbon.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/farmer/ca-cert.pem"
 
-  cp "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer0.manufacturer.carbon.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer0.manufacturer.carbon.com/tls/ca.crt"
-  cp "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer0.manufacturer.carbon.com/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer0.manufacturer.carbon.com/tls/server.crt"
-  cp "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer0.manufacturer.carbon.com/tls/keystore/"* "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer0.manufacturer.carbon.com/tls/server.key"
+  cp "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer0.farmer.carbon.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer0.farmer.carbon.com/tls/ca.crt"
+  cp "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer0.farmer.carbon.com/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer0.farmer.carbon.com/tls/server.crt"
+  cp "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer0.farmer.carbon.com/tls/keystore/"* "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer0.farmer.carbon.com/tls/server.key"
 
   # Peer1 MSP and TLS certificates
   echo "Generating the peer1 MSP"
-  fabric-ca-client enroll -u https://peer1:peer1pw@localhost:7054 --caname ca-manufacturer -M "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer1.manufacturer.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/manufacturer/ca-cert.pem"
+  fabric-ca-client enroll -u https://peer1:peer1pw@localhost:7054 --caname ca-farmer -M "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer1.farmer.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/farmer/ca-cert.pem"
 
-  cp "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer1.manufacturer.carbon.com/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/farmer.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer1.farmer.carbon.com/msp/config.yaml"
 
   echo "Generating the peer1 TLS certificates"
-  fabric-ca-client enroll -u https://peer1:peer1pw@localhost:7054 --caname ca-manufacturer -M "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer1.manufacturer.carbon.com/tls" --enrollment.profile tls --csr.hosts peer1.manufacturer.carbon.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/manufacturer/ca-cert.pem"
+  fabric-ca-client enroll -u https://peer1:peer1pw@localhost:7054 --caname ca-farmer -M "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer1.farmer.carbon.com/tls" --enrollment.profile tls --csr.hosts peer1.farmer.carbon.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/farmer/ca-cert.pem"
 
-  cp "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer1.manufacturer.carbon.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer1.manufacturer.carbon.com/tls/ca.crt"
-  cp "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer1.manufacturer.carbon.com/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer1.manufacturer.carbon.com/tls/server.crt"
-  cp "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer1.manufacturer.carbon.com/tls/keystore/"* "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/peers/peer1.manufacturer.carbon.com/tls/server.key"
+  cp "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer1.farmer.carbon.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer1.farmer.carbon.com/tls/ca.crt"
+  cp "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer1.farmer.carbon.com/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer1.farmer.carbon.com/tls/server.crt"
+  cp "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer1.farmer.carbon.com/tls/keystore/"* "${PWD}/organizations/peerOrganizations/farmer.carbon.com/peers/peer1.farmer.carbon.com/tls/server.key"
 
   echo "Generating the user MSP"
-  fabric-ca-client enroll -u https://user1:user1pw@localhost:7054 --caname ca-manufacturer -M "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/users/User1@manufacturer.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/manufacturer/ca-cert.pem"
+  fabric-ca-client enroll -u https://user1:user1pw@localhost:7054 --caname ca-farmer -M "${PWD}/organizations/peerOrganizations/farmer.carbon.com/users/User1@farmer.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/farmer/ca-cert.pem"
 
-  cp "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/users/User1@manufacturer.carbon.com/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/farmer.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/farmer.carbon.com/users/User1@farmer.carbon.com/msp/config.yaml"
 
   echo "Generating the org admin MSP"
-  fabric-ca-client enroll -u https://manufactureradmin:manufactureradminpw@localhost:7054 --caname ca-manufacturer -M "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/users/Admin@manufacturer.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/manufacturer/ca-cert.pem"
+  fabric-ca-client enroll -u https://farmeradmin:farmeradminpw@localhost:7054 --caname ca-farmer -M "${PWD}/organizations/peerOrganizations/farmer.carbon.com/users/Admin@farmer.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/farmer/ca-cert.pem"
 
-  cp "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/manufacturer.carbon.com/users/Admin@manufacturer.carbon.com/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/farmer.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/farmer.carbon.com/users/Admin@farmer.carbon.com/msp/config.yaml"
 }
 
 
-function createWholesaler() {
-  echo "Enrolling the CA admin for Wholesaler"
-  mkdir -p organizations/peerOrganizations/wholesaler.carbon.com/
+function createbuyer() {
+  echo "Enrolling the CA admin for buyer"
+  mkdir -p organizations/peerOrganizations/buyer.carbon.com/
 
-  export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/
+  export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/buyer.carbon.com/
 
   set -x
-  fabric-ca-client enroll -u https://admin:adminpw@localhost:8054 --caname ca-wholesaler --tls.certfiles "${PWD}/organizations/fabric-ca/wholesaler/ca-cert.pem"
+  fabric-ca-client enroll -u https://admin:adminpw@localhost:8054 --caname ca-buyer --tls.certfiles "${PWD}/organizations/fabric-ca/buyer/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   echo 'NodeOUs:
   Enable: true
   ClientOUIdentifier:
-    Certificate: cacerts/localhost-8054-ca-wholesaler.pem
+    Certificate: cacerts/localhost-8054-ca-buyer.pem
     OrganizationalUnitIdentifier: client
   PeerOUIdentifier:
-    Certificate: cacerts/localhost-8054-ca-wholesaler.pem
+    Certificate: cacerts/localhost-8054-ca-buyer.pem
     OrganizationalUnitIdentifier: peer
   AdminOUIdentifier:
-    Certificate: cacerts/localhost-8054-ca-wholesaler.pem
+    Certificate: cacerts/localhost-8054-ca-buyer.pem
     OrganizationalUnitIdentifier: admin
   OrdererOUIdentifier:
-    Certificate: cacerts/localhost-8054-ca-wholesaler.pem
-    OrganizationalUnitIdentifier: orderer' > "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/msp/config.yaml"
+    Certificate: cacerts/localhost-8054-ca-buyer.pem
+    OrganizationalUnitIdentifier: orderer' > "${PWD}/organizations/peerOrganizations/buyer.carbon.com/msp/config.yaml"
 
-  mkdir -p "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/msp/tlscacerts"
-  cp "${PWD}/organizations/fabric-ca/wholesaler/ca-cert.pem" "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/msp/tlscacerts/ca.crt"
+  mkdir -p "${PWD}/organizations/peerOrganizations/buyer.carbon.com/msp/tlscacerts"
+  cp "${PWD}/organizations/fabric-ca/buyer/ca-cert.pem" "${PWD}/organizations/peerOrganizations/buyer.carbon.com/msp/tlscacerts/ca.crt"
 
-  mkdir -p "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/tlsca"
-  cp "${PWD}/organizations/fabric-ca/wholesaler/ca-cert.pem" "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/tlsca/tlsca.wholesaler.carbon.com-cert.pem"
+  mkdir -p "${PWD}/organizations/peerOrganizations/buyer.carbon.com/tlsca"
+  cp "${PWD}/organizations/fabric-ca/buyer/ca-cert.pem" "${PWD}/organizations/peerOrganizations/buyer.carbon.com/tlsca/tlsca.buyer.carbon.com-cert.pem"
 
-  mkdir -p "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/ca"
-  cp "${PWD}/organizations/fabric-ca/wholesaler/ca-cert.pem" "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/ca/ca.wholesaler.carbon.com-cert.pem"
+  mkdir -p "${PWD}/organizations/peerOrganizations/buyer.carbon.com/ca"
+  cp "${PWD}/organizations/fabric-ca/buyer/ca-cert.pem" "${PWD}/organizations/peerOrganizations/buyer.carbon.com/ca/ca.buyer.carbon.com-cert.pem"
 
   echo "Registering peer0"
   set -x
-  fabric-ca-client register --caname ca-wholesaler --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/wholesaler/ca-cert.pem"
+  fabric-ca-client register --caname ca-buyer --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/buyer/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   echo "Registering user1"
   set -x
-  fabric-ca-client register --caname ca-wholesaler --id.name user1 --id.secret user1pw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/wholesaler/ca-cert.pem"
+  fabric-ca-client register --caname ca-buyer --id.name user1 --id.secret user1pw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/buyer/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   echo "Registering org admin"
   set -x
-  fabric-ca-client register --caname ca-wholesaler --id.name wholesaleradmin --id.secret wholesaleradminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/wholesaler/ca-cert.pem"
+  fabric-ca-client register --caname ca-buyer --id.name buyeradmin --id.secret buyeradminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/buyer/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   echo "Generating the peer0 MSP"
-  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:8054 --caname ca-wholesaler -M "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/peers/peer0.wholesaler.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/wholesaler/ca-cert.pem"
+  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:8054 --caname ca-buyer -M "${PWD}/organizations/peerOrganizations/buyer.carbon.com/peers/peer0.buyer.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/buyer/ca-cert.pem"
 
-  cp "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/peers/peer0.wholesaler.carbon.com/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/buyer.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/buyer.carbon.com/peers/peer0.buyer.carbon.com/msp/config.yaml"
 
   echo "Generating the peer0 TLS certificates"
-  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:8054 --caname ca-wholesaler -M "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/peers/peer0.wholesaler.carbon.com/tls" --enrollment.profile tls --csr.hosts peer0.wholesaler.carbon.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/wholesaler/ca-cert.pem"
+  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:8054 --caname ca-buyer -M "${PWD}/organizations/peerOrganizations/buyer.carbon.com/peers/peer0.buyer.carbon.com/tls" --enrollment.profile tls --csr.hosts peer0.buyer.carbon.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/buyer/ca-cert.pem"
 
-  cp "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/peers/peer0.wholesaler.carbon.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/peers/peer0.wholesaler.carbon.com/tls/ca.crt"
-  cp "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/peers/peer0.wholesaler.carbon.com/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/peers/peer0.wholesaler.carbon.com/tls/server.crt"
-  cp "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/peers/peer0.wholesaler.carbon.com/tls/keystore/"* "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/peers/peer0.wholesaler.carbon.com/tls/server.key"
+  cp "${PWD}/organizations/peerOrganizations/buyer.carbon.com/peers/peer0.buyer.carbon.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/buyer.carbon.com/peers/peer0.buyer.carbon.com/tls/ca.crt"
+  cp "${PWD}/organizations/peerOrganizations/buyer.carbon.com/peers/peer0.buyer.carbon.com/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/buyer.carbon.com/peers/peer0.buyer.carbon.com/tls/server.crt"
+  cp "${PWD}/organizations/peerOrganizations/buyer.carbon.com/peers/peer0.buyer.carbon.com/tls/keystore/"* "${PWD}/organizations/peerOrganizations/buyer.carbon.com/peers/peer0.buyer.carbon.com/tls/server.key"
 
   echo "Generating the user MSP"
-  fabric-ca-client enroll -u https://user1:user1pw@localhost:8054 --caname ca-wholesaler -M "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/users/User1@wholesaler.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/wholesaler/ca-cert.pem"
+  fabric-ca-client enroll -u https://user1:user1pw@localhost:8054 --caname ca-buyer -M "${PWD}/organizations/peerOrganizations/buyer.carbon.com/users/User1@buyer.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/buyer/ca-cert.pem"
 
-  cp "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/users/User1@wholesaler.carbon.com/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/buyer.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/buyer.carbon.com/users/User1@buyer.carbon.com/msp/config.yaml"
 
   echo "Generating the org admin MSP"
-  fabric-ca-client enroll -u https://wholesaleradmin:wholesaleradminpw@localhost:8054 --caname ca-wholesaler -M "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/users/Admin@wholesaler.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/wholesaler/ca-cert.pem"
+  fabric-ca-client enroll -u https://buyeradmin:buyeradminpw@localhost:8054 --caname ca-buyer -M "${PWD}/organizations/peerOrganizations/buyer.carbon.com/users/Admin@buyer.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/buyer/ca-cert.pem"
 
-  cp "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/wholesaler.carbon.com/users/Admin@wholesaler.carbon.com/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/buyer.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/buyer.carbon.com/users/Admin@buyer.carbon.com/msp/config.yaml"
 }
 
-function createcarbon() {
-  echo "Enrolling the CA admin for carboncy"
-  mkdir -p organizations/peerOrganizations/carbon.carbon.com/
+function createcertAuth() {
+  echo "Enrolling the CA admin for CertiftyingAuth credit"
+  mkdir -p organizations/peerOrganizations/certifyingAuth.carbon.com/
 
-  export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/carbon.carbon.com/
+  export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/
 
   set -x
-  fabric-ca-client enroll -u https://admin:adminpw@localhost:11054 --caname ca-carbon --tls.certfiles "${PWD}/organizations/fabric-ca/carbon/ca-cert.pem"
+  fabric-ca-client enroll -u https://admin:adminpw@localhost:11054 --caname ca-certifyingAuth --tls.certfiles "${PWD}/organizations/fabric-ca/certifyingAuth/ca-cert.pem"
   { set +x; } 2>/dev/null
 
 echo 'NodeOUs:
   Enable: true
   ClientOUIdentifier:
-    Certificate: cacerts/localhost-11054-ca-carbon.pem
+    Certificate: cacerts/localhost-11054-ca-certifyingAuth.pem
     OrganizationalUnitIdentifier: client
   PeerOUIdentifier:
-    Certificate: cacerts/localhost-11054-ca-carbon.pem
+    Certificate: cacerts/localhost-11054-ca-certifyingAuth.pem
     OrganizationalUnitIdentifier: peer
   AdminOUIdentifier:
-    Certificate: cacerts/localhost-11054-ca-carbon.pem
+    Certificate: cacerts/localhost-11054-ca-certifyingAuth.pem
     OrganizationalUnitIdentifier: admin
   OrdererOUIdentifier:
-    Certificate: cacerts/localhost-11054-ca-carbon.pem
-    OrganizationalUnitIdentifier: orderer' > "${PWD}/organizations/peerOrganizations/carbon.carbon.com/msp/config.yaml"
+    Certificate: cacerts/localhost-11054-ca-certifyingAuth.pem
+    OrganizationalUnitIdentifier: orderer' > "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/msp/config.yaml"
 
-  mkdir -p "${PWD}/organizations/peerOrganizations/carbon.carbon.com/msp/tlscacerts"
-  cp "${PWD}/organizations/fabric-ca/carbon/ca-cert.pem" "${PWD}/organizations/peerOrganizations/carbon.carbon.com/msp/tlscacerts/ca.crt"
+  mkdir -p "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/msp/tlscacerts"
+  cp "${PWD}/organizations/fabric-ca/certifyingAuth/ca-cert.pem" "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/msp/tlscacerts/ca.crt"
 
-  mkdir -p "${PWD}/organizations/peerOrganizations/carbon.carbon.com/tlsca"
-  cp "${PWD}/organizations/fabric-ca/carbon/ca-cert.pem" "${PWD}/organizations/peerOrganizations/carbon.carbon.com/tlsca/tlsca.carbon.carbon.com-cert.pem"
+  mkdir -p "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/tlsca"
+  cp "${PWD}/organizations/fabric-ca/certifyingAuth/ca-cert.pem" "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/tlsca/tlsca.certifyingAuth.carbon.com-cert.pem"
 
-  mkdir -p "${PWD}/organizations/peerOrganizations/carbon.carbon.com/ca"
-  cp "${PWD}/organizations/fabric-ca/carbon/ca-cert.pem" "${PWD}/organizations/peerOrganizations/carbon.carbon.com/ca/ca.carbon.carbon.com-cert.pem"
+  mkdir -p "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/ca"
+  cp "${PWD}/organizations/fabric-ca/certifyingAuth/ca-cert.pem" "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/ca/ca.certifyingAuth.carbon.com-cert.pem"
 
   echo "Registering peer0"
   set -x
-  fabric-ca-client register --caname ca-carbon --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/carbon/ca-cert.pem"
+  fabric-ca-client register --caname ca-certifyingAuth --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/certifyingAuth/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   echo "Registering user1"
   set -x
-  fabric-ca-client register --caname ca-carbon --id.name user1 --id.secret user1pw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/carbon/ca-cert.pem"
+  fabric-ca-client register --caname ca-certifyingAuth --id.name user1 --id.secret user1pw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/certifyingAuth/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   echo "Registering org admin"
   set -x
-  fabric-ca-client register --caname ca-carbon --id.name carbonadmin --id.secret carbonadminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/carbon/ca-cert.pem"
+  fabric-ca-client register --caname ca-certifyingAuth --id.name carbonadmin --id.secret carbonadminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/certifyingAuth/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   echo "Generating the peer0 MSP" 
-  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:11054 --caname ca-carbon -M "${PWD}/organizations/peerOrganizations/carbon.carbon.com/peers/peer0.carbon.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/carbon/ca-cert.pem"
+  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:11054 --caname ca-certifyingAuth -M "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/peers/peer0.certifyingAuth.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/certifyingAuth/ca-cert.pem"
 
-  cp "${PWD}/organizations/peerOrganizations/carbon.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/carbon.carbon.com/peers/peer0.carbon.carbon.com/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/peers/peer0.certifyingAuth.carbon.com/msp/config.yaml"
 
   echo "Generating the peer0 TLS certificates"
-  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:11054 --caname ca-carbon -M "${PWD}/organizations/peerOrganizations/carbon.carbon.com/peers/peer0.carbon.carbon.com/tls" --enrollment.profile tls --csr.hosts peer0.carbon.carbon.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/carbon/ca-cert.pem"
+  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:11054 --caname ca-certifyingAuth -M "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/peers/peer0.certifyingAuth.carbon.com/tls" --enrollment.profile tls --csr.hosts peer0.certifyingAuth.carbon.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/certifyingAuth/ca-cert.pem"
 
-  cp "${PWD}/organizations/peerOrganizations/carbon.carbon.com/peers/peer0.carbon.carbon.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/carbon.carbon.com/peers/peer0.carbon.carbon.com/tls/ca.crt"
-  cp "${PWD}/organizations/peerOrganizations/carbon.carbon.com/peers/peer0.carbon.carbon.com/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/carbon.carbon.com/peers/peer0.carbon.carbon.com/tls/server.crt"
-  cp "${PWD}/organizations/peerOrganizations/carbon.carbon.com/peers/peer0.carbon.carbon.com/tls/keystore/"* "${PWD}/organizations/peerOrganizations/carbon.carbon.com/peers/peer0.carbon.carbon.com/tls/server.key"
+  cp "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/peers/peer0.certifyingAuth.carbon.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/peers/peer0.certifyingAuth.carbon.com/tls/ca.crt"
+  cp "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/peers/peer0.certifyingAuth.carbon.com/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/peers/peer0.certifyingAuth.carbon.com/tls/server.crt"
+  cp "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/peers/peer0.certifyingAuth.carbon.com/tls/keystore/"* "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/peers/peer0.certifyingAuth.carbon.com/tls/server.key"
 
   echo "Generating the user MSP"
-  fabric-ca-client enroll -u https://user1:user1pw@localhost:11054 --caname ca-carbon -M "${PWD}/organizations/peerOrganizations/carbon.carbon.com/users/User1@carbon.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/carbon/ca-cert.pem"
+  fabric-ca-client enroll -u https://user1:user1pw@localhost:11054 --caname ca-certifyingAuth -M "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/users/User1@certifyingAuth.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/certifyingAuth/ca-cert.pem"
 
-  cp "${PWD}/organizations/peerOrganizations/carbon.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/carbon.carbon.com/users/User1@carbon.carbon.com/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/users/User1@certifyingAuth.carbon.com/msp/config.yaml"
 
   echo "Generating the org admin MSP"
-  fabric-ca-client enroll -u https://carbonadmin:carbonadminpw@localhost:11054 --caname ca-carbon -M "${PWD}/organizations/peerOrganizations/carbon.carbon.com/users/Admin@carbon.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/carbon/ca-cert.pem"
+  fabric-ca-client enroll -u https://carbonadmin:carbonadminpw@localhost:11054 --caname ca-certifyingAuth -M "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/users/Admin@certifyingAuth.carbon.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/certifyingAuth/ca-cert.pem"
 
-  cp "${PWD}/organizations/peerOrganizations/carbon.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/carbon.carbon.com/users/Admin@carbon.carbon.com/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/certifyingAuth.carbon.com/users/Admin@certifyingAuth.carbon.com/msp/config.yaml"
 
 
 }
@@ -406,8 +406,8 @@ function createOrderer() {
 
 
 
-createManufacturer
-createWholesaler
-createcarbon
+createfarmer
+createbuyer
+createcertAuth
 createRegulators
 createOrderer
